@@ -24,15 +24,17 @@ class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
         annotation.peek('name')?.stringValue ?? '${annotatedClassName}Wrapper';
 
     String defaultWrapperReturnClassName = 'WrapperReturnClass';
-    DartType wrapperReturnClass = annotation.peek('returnType')!.typeValue;
+    String? wrapperReturnClassName;
+    DartType? wrapperReturnClass = annotation.peek('returnType')?.typeValue;
     // first check if is typedef alias name
-    String wrapperReturnClassName =
-        wrapperReturnClass.alias?.element.displayName ??
-            wrapperReturnClass.getDisplayString(withNullability: false);
+    if (wrapperReturnClass != null) {
+      wrapperReturnClassName = wrapperReturnClass.alias?.element.displayName ??
+          wrapperReturnClass.getDisplayString(withNullability: false);
 
-    if (wrapperReturnClassName.contains('<')) {
-      wrapperReturnClassName = wrapperReturnClassName.substring(
-          0, wrapperReturnClassName.indexOf('<'));
+      if (wrapperReturnClassName.contains('<')) {
+        wrapperReturnClassName = wrapperReturnClassName.substring(
+            0, wrapperReturnClassName.indexOf('<'));
+      }
     }
 
     String classFieldName =
@@ -47,8 +49,9 @@ class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
         returnTypeIgnoreFuture = returnTypeIgnoreFuture.substring(
             'Future<'.length, returnTypeIgnoreFuture.length - 1);
       }
-      String wrapReturnType =
-          '$wrapperReturnClassName<$returnTypeIgnoreFuture>';
+      String wrapReturnType = wrapperReturnClassName == null
+          ? returnTypeIgnoreFuture
+          : '$wrapperReturnClassName<$returnTypeIgnoreFuture>';
 
       // if (containsFuture) {
       wrapReturnType = 'Future<$wrapReturnType>';
@@ -63,8 +66,8 @@ return catchHandler(
       methods.add(methodBuilder.build());
     }
     // catchHandler method: if use default WrapperReturnClass then will add default implement behavior
-    String catchHandlerBlock = wrapperReturnClassName ==
-            defaultWrapperReturnClassName
+    String catchHandlerBlock = wrapperReturnClassName != null &&
+            wrapperReturnClassName == defaultWrapperReturnClassName
         ? '''
         T result = await callback();
         return $wrapperReturnClassName(result);
@@ -72,7 +75,8 @@ return catchHandler(
         : "throw UnimplementedError('sub wrapper class need to implement this method');";
 
     methods.add(Method((b) => b
-      ..returns = refer('Future<$wrapperReturnClassName<T>>')
+      ..returns = refer(
+          "Future<${wrapperReturnClassName == null ? 'T' : '$wrapperReturnClassName<T>'}>")
       ..name = 'catchHandler<T>'
       ..modifier = MethodModifier.async
       ..requiredParameters.addAll([

@@ -10,7 +10,7 @@ part 'custom.g.dart';
 part 'custom.wrapper.dart';
 
 @RestApi(baseUrl: "https://example.com")
-@Wrapper(returnType: ApiEither)
+@Wrapper(returnType: ApiEither, )
 abstract class CustomClient with VideoMixin {
   factory CustomClient(Dio dio, {String baseUrl}) = _CustomClient;
 

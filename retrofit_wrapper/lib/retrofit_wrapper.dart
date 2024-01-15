@@ -6,7 +6,7 @@ class Wrapper {
   final String? name;
   // default return class: WrapperReturnClass
   // if use default WrapperReturnClass then WrapperClass.catchHandler will add default implement behavior
-  final Type returnType;
+  final Type? returnType;
   const Wrapper({
     this.name,
     this.returnType = WrapperReturnClass,
