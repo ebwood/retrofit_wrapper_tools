@@ -1,5 +1,6 @@
 name: retrofit_wrapper_generator
 description: retrofit_wrapper generator
+publish_to: 'none'
 version: 0.0.1
 
 environment:
@@ -12,7 +13,9 @@ dependencies:
   dart_style: ^2.3.4
   dev: ^1.0.0
   retrofit_wrapper:
-    path: ../retrofit_wrapper
+    git:
+      url: https://github.com/ebwood/retrofit_wrapper_tools
+      path: retrofit_wrapper
   source_gen: ^1.5.0
 
 dev_dependencies:
